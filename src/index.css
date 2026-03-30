@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark theme (default) */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 142 70% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 142 70% 35%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 142 70% 35%;
+    --radius: 0.75rem;
+
+    /* Chat specific */
+    --chat-user: 142 70% 35%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-ai: 0 0% 18%;
+    --chat-ai-foreground: 0 0% 90%;
+    --chat-bg: 0 0% 5%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 0 0% 80%;
+    --sidebar-primary: 142 70% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 142 70% 35%;
+
+    font-family: 'Inter', 'Cairo', sans-serif;
+  }
+
+  /* Light theme */
+  [data-theme="light"] {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 142 70% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 142 70% 35%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 142 70% 35%;
+
+    --chat-user: 142 70% 35%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-ai: 0 0% 95%;
+    --chat-ai-foreground: 0 0% 15%;
+    --chat-bg: 0 0% 100%;
+
+    --sidebar-background: 0 0% 96%;
+    --sidebar-foreground: 0 0% 30%;
+    --sidebar-primary: 142 70% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 92%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 142 70% 35%;
+  }
+
+  /* Green theme */
+  [data-theme="green"] {
+    --background: 140 30% 8%;
+    --foreground: 140 20% 92%;
+    --card: 140 25% 12%;
+    --card-foreground: 140 20% 92%;
+    --popover: 140 25% 12%;
+    --popover-foreground: 140 20% 92%;
+    --primary: 142 70% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 140 20% 16%;
+    --secondary-foreground: 140 20% 85%;
+    --muted: 140 20% 16%;
+    --muted-foreground: 140 10% 55%;
+    --accent: 142 70% 40%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 140 20% 18%;
+    --input: 140 20% 18%;
+    --ring: 142 70% 40%;
+
+    --chat-user: 142 70% 40%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-ai: 140 25% 15%;
+    --chat-ai-foreground: 140 20% 90%;
+    --chat-bg: 140 30% 6%;
+
+    --sidebar-background: 140 25% 10%;
+    --sidebar-foreground: 140 15% 75%;
+    --sidebar-primary: 142 70% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 140 20% 15%;
+    --sidebar-accent-foreground: 140 20% 85%;
+    --sidebar-border: 140 20% 16%;
+    --sidebar-ring: 142 70% 40%;
+  }
+
+  /* Olive theme */
+  [data-theme="olive"] {
+    --background: 80 20% 10%;
+    --foreground: 80 15% 90%;
+    --card: 80 18% 14%;
+    --card-foreground: 80 15% 90%;
+    --popover: 80 18% 14%;
+    --popover-foreground: 80 15% 90%;
+    --primary: 80 45% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 80 15% 18%;
+    --secondary-foreground: 80 15% 82%;
+    --muted: 80 15% 18%;
+    --muted-foreground: 80 10% 50%;
+    --accent: 80 45% 40%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 80 15% 20%;
+    --input: 80 15% 20%;
+    --ring: 80 45% 40%;
+
+    --chat-user: 80 45% 40%;
+    --chat-user-foreground: 0 0% 100%;
+    --chat-ai: 80 18% 16%;
+    --chat-ai-foreground: 80 15% 88%;
+    --chat-bg: 80 20% 7%;
+
+    --sidebar-background: 80 18% 12%;
+    --sidebar-foreground: 80 12% 70%;
+    --sidebar-primary: 80 45% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 80 15% 17%;
+    --sidebar-accent-foreground: 80 15% 82%;
+    --sidebar-border: 80 15% 18%;
+    --sidebar-ring: 80 45% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 2px;
+  }
+}
