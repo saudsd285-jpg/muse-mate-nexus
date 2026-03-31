@@ -6,7 +6,9 @@
   "homepage": "https://saudsd285-jpg.github.io/muse-mate-nexus",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
