@@ -75,7 +75,7 @@ const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatIn
   };
 
   return (
-    <div className="p-3 sm:p-4 border-t border-border" dir="rtl">
+    <div className="p-2 sm:p-4 border-t border-border safe-bottom" dir="rtl">
       {selectedFile && (
         <div className="max-w-3xl mx-auto mb-2">
           <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-sm">

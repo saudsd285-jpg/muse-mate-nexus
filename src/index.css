@@ -142,4 +142,19 @@
     background: hsl(var(--muted));
     border-radius: 2px;
   }
+
+  /* Safe area for mobile */
+  .safe-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .prose {
+    font-size: 14px !important;
+  }
+  .prose pre {
+    font-size: 12px !important;
+  }
 }
