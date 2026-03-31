@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://saudsd285-jpg.github.io/muse-mate-nexus",
+  "homepage": "https://saudsd285-jpg.github.io/UXINAI/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
