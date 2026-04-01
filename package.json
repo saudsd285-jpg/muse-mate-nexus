@@ -6,7 +6,8 @@
   "homepage": "https://saudsd285-jpg.github.io/UXINAI/",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "build:dev": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",

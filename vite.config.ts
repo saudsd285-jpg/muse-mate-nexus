@@ -1,10 +1,16 @@
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react-swc";
+import path from "path";
+
 export default defineConfig({
   plugins: [react()],
-  base: "/UXINAI/", // <--- هنا مكانها الصح يا بطل!
-  test: {
-    // باقي الإعدادات...
-  },
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  server: {
+    host: "::",
+    port: 8080,
   },
 });
