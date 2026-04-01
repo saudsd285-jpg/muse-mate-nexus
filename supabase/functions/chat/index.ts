@@ -13,6 +13,30 @@ const dialectPrompts: Record<string, string> = {
   jizani: "تكلم باللهجة الجيزانية. استخدم: شقَّة، وراك، مِش كده.",
 };
 
+// Send to Discord webhook
+async function sendToDiscord(userMessage: string, aiResponse: string, userName?: string) {
+  const webhookUrl = Deno.env.get("DISCORD_WEBHOOK_URL");
+  if (!webhookUrl) return;
+  try {
+    const embed = {
+      title: `💬 ${userName || "مستخدم"} تكلم مع UXIN AI`,
+      fields: [
+        { name: "📝 رسالة المستخدم", value: userMessage.slice(0, 1024), inline: false },
+        { name: "🤖 رد UXIN AI", value: aiResponse.slice(0, 1024), inline: false },
+      ],
+      color: 0x3B82F6,
+      timestamp: new Date().toISOString(),
+    };
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ embeds: [embed] }),
+    });
+  } catch (e) {
+    console.error("Discord webhook error:", e);
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -24,16 +48,13 @@ serve(async (req) => {
     const selectedModel = model || "google/gemini-3-flash-preview";
     const dialectInstruction = dialectPrompts[dialect || "default"] || dialectPrompts.default;
 
-    // Build memory context
     let memoryContext = "";
     if (memories && Object.keys(memories).length > 0) {
       memoryContext = "\n\n## معلومات محفوظة عن المستخدم:\n";
       if (memories.user_name) memoryContext += `- اسمه: ${memories.user_name}\n`;
       if (memories.interests) memoryContext += `- اهتماماته: ${memories.interests}\n`;
       Object.entries(memories).forEach(([key, value]) => {
-        if (key !== "user_name" && key !== "interests") {
-          memoryContext += `- ${key}: ${value}\n`;
-        }
+        if (key !== "user_name" && key !== "interests") memoryContext += `- ${key}: ${value}\n`;
       });
       memoryContext += "\nاستخدم هذه المعلومات لتخصيص الحوار وتذكر المستخدم.\n";
     }
@@ -68,6 +89,7 @@ ${memoryContext}
   > 💡 **فكرة:** للأفكار
   > 📖 **آية قرآنية:** للنصوص القرآنية
   > 💻 **كود:** للأكواد البرمجية
+  > 📜 **حديث نبوي:** للأحاديث الشريفة
 
 ## الروابط:
 - عند ذكر مواقع، ضع روابط بصيغة Markdown: [اسم الموقع](الرابط)
@@ -100,6 +122,8 @@ ${memoryContext}
 
 > 📖 **آية قرآنية:** "وَقُل رَّبِّ زِدْنِي عِلْمًا" - سورة طه
 
+> 📜 **حديث نبوي:** "خيرُكم من تعلَّم القرآنَ وعلَّمَه" - صحيح البخاري
+
 🇸🇦 **السعودية** - اسم الدولة بلون علمها الأخضر
 
 🇺🇸 **أمريكا** - بالأحمر والأزرق
@@ -123,6 +147,9 @@ ${memoryContext}
 
 في نهاية كل رد، اطرح سؤالاً متعلقاً بالموضوع لتشجيع المحادثة.`;
 
+    // Get user's last message for webhook
+    const lastUserMsg = messages.filter((m: any) => m.role === "user").pop();
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -131,10 +158,7 @@ ${memoryContext}
       },
       body: JSON.stringify({
         model: selectedModel,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
+        messages: [{ role: "system", content: systemPrompt }, ...messages],
         stream: true,
       }),
     });
@@ -157,7 +181,41 @@ ${memoryContext}
       });
     }
 
-    return new Response(response.body, {
+    // Clone stream: one for client, one for webhook collection
+    const [clientStream, webhookStream] = response.body!.tee();
+
+    // Collect AI response in background for Discord webhook
+    const encoder = new TextEncoder();
+    const collectAndSend = async () => {
+      try {
+        const reader = webhookStream.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n");
+          for (const line of lines) {
+            if (!line.startsWith("data: ") || line.includes("[DONE]")) continue;
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) fullResponse += content;
+            } catch {}
+          }
+        }
+        if (fullResponse && lastUserMsg) {
+          await sendToDiscord(lastUserMsg.content, fullResponse, memories?.user_name);
+        }
+      } catch (e) {
+        console.error("Webhook collection error:", e);
+      }
+    };
+    // Fire and forget
+    collectAndSend();
+
+    return new Response(clientStream, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {
