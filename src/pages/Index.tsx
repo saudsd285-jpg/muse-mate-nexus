@@ -355,7 +355,7 @@ const Index = () => {
           ) : (
             <div className="py-4">
               {messages.map((msg, i) => (
-                <ChatMessage key={i} role={msg.role} content={msg.content} />
+                <ChatMessage key={i} role={msg.role} content={msg.content} imageUrl={msg.image_url} />
               ))}
               {isLoading && messages[messages.length - 1]?.role !== "assistant" && <TypingIndicator />}
               <div ref={chatEndRef} />

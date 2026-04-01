@@ -12,6 +12,7 @@ interface ChatInputProps {
 const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatInputProps) => {
   const [input, setInput] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,9 +25,20 @@ const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatIn
     }
   }, [input]);
 
+  // Generate preview for image files
+  useEffect(() => {
+    if (selectedFile && selectedFile.type.startsWith("image/")) {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [selectedFile]);
+
   const handleSend = () => {
     if (isLoading && onStop) { onStop(); return; }
-    if (selectedFile) { onFileUpload(selectedFile); setSelectedFile(null); return; }
+    if (selectedFile) { onFileUpload(selectedFile); setSelectedFile(null); setPreviewUrl(null); return; }
     if (!input.trim()) return;
     const isSearch = /^(?:ابحث|بحث|search|find|ابحث عن)\s/i.test(input.trim());
     if (isSearch) { onSearch(input.trim()); } else { onSend(input.trim()); }
@@ -44,6 +56,22 @@ const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatIn
       setSelectedFile(file);
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // Handle paste for images
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith("image/")) {
+        e.preventDefault();
+        const file = items[i].getAsFile();
+        if (file) {
+          setSelectedFile(file);
+        }
+        return;
+      }
+    }
   };
 
   const toggleVoice = () => {
@@ -78,21 +106,31 @@ const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatIn
     <div className="p-2 sm:p-4 border-t border-border safe-bottom" dir="rtl">
       {selectedFile && (
         <div className="max-w-3xl mx-auto mb-2">
-          <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-sm">
-            {getFileIcon(selectedFile)}
-            <span className="truncate max-w-[200px]">{selectedFile.name}</span>
-            <button onClick={() => setSelectedFile(null)} className="p-0.5 hover:text-destructive transition-colors">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          {previewUrl ? (
+            <div className="relative inline-block">
+              <img src={previewUrl} alt="معاينة" className="max-h-32 rounded-xl border-2 border-primary/30 shadow-lg" />
+              <button onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
+                className="absolute -top-2 -left-2 p-1 rounded-full bg-destructive text-destructive-foreground shadow-lg hover:opacity-90 transition-opacity">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-sm">
+              {getFileIcon(selectedFile)}
+              <span className="truncate max-w-[200px]">{selectedFile.name}</span>
+              <button onClick={() => setSelectedFile(null)} className="p-0.5 hover:text-destructive transition-colors">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      <div className="flex items-end gap-2 max-w-3xl mx-auto bg-secondary rounded-2xl px-3 py-2">
+      <div className="flex items-end gap-2 max-w-3xl mx-auto bg-secondary/80 backdrop-blur-sm rounded-2xl px-3 py-2 border border-border/50">
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading}
-          className="p-2 rounded-xl text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+          className="p-2 rounded-xl text-muted-foreground hover:text-primary transition-colors disabled:opacity-40"
           title="رفع ملف"
         >
           <Paperclip className="w-4 h-4" />
@@ -108,7 +146,7 @@ const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatIn
         <button
           onClick={() => { if (input.trim()) onSearch(input.trim()); }}
           disabled={!input.trim() || isLoading}
-          className="p-2 rounded-xl text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+          className="p-2 rounded-xl text-muted-foreground hover:text-primary transition-colors disabled:opacity-40"
           title="بحث في الإنترنت"
         >
           <Search className="w-4 h-4" />
@@ -116,7 +154,7 @@ const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatIn
 
         <button
           onClick={toggleVoice}
-          className={`p-2 rounded-xl transition-colors ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground hover:text-foreground"}`}
+          className={`p-2 rounded-xl transition-colors ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground hover:text-primary"}`}
           title={isListening ? "إيقاف التسجيل" : "تحدث"}
         >
           {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -127,6 +165,7 @@ const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatIn
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           placeholder={selectedFile ? "اضغط إرسال لتحليل الملف..." : "اكتب رسالتك هنا..."}
           rows={1}
           className="flex-1 bg-transparent resize-none outline-none text-foreground placeholder:text-muted-foreground py-2 text-sm scrollbar-thin"
@@ -134,10 +173,10 @@ const ChatInput = ({ onSend, onFileUpload, onSearch, isLoading, onStop }: ChatIn
         <button
           onClick={handleSend}
           disabled={!isLoading && !input.trim() && !selectedFile}
-          className={`p-2 rounded-xl transition-opacity flex-shrink-0 ${
+          className={`p-2.5 rounded-xl transition-all flex-shrink-0 ${
             isLoading
               ? "bg-destructive text-destructive-foreground hover:opacity-90"
-              : "bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              : "bg-gradient-to-br from-primary to-accent text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
           }`}
         >
           {isLoading ? <Square className="w-4 h-4" /> : <Send className="w-4 h-4 rotate-180" />}
